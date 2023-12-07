@@ -53,16 +53,10 @@ class Centroids(object):
                 one_hot(y_output, self.nb_classes), one_hot(
                     y_target, self.nb_classes)
             )
-            # print("correct")
         elif self.represented_samples == "output":
             samples_one_hot = one_hot(y_output, self.nb_classes)
-            # print("output")
         elif self.represented_samples == "bias":
             samples_one_hot = one_hot(bias_target, self.nb_classes)
-            # print("bias")
-            # print(bias_target)
-        #print(f'device of nb_elements : {self.nb_elements.get_device()}')
-        #print(f'device of samples_one_hot : {samples_one_hot.get_device()}')
 
         if torch.prod(self.nb_elements + torch.sum(samples_one_hot, dim=0)) > 1:
             self.positions = (
@@ -344,14 +338,11 @@ class VCBAReweighter(object):
     def compute_dist_from_hyperplane(self):
         misaligned = self.y_target != self.y_output
         w = self.w_h[self.y_target, self.y_output]
-        norm_w = torch.norm(w, p=2, dim=1)  # check dim, might be false
-        # print_remi("norm_w", norm_w)
+        norm_w = torch.norm(w, p=2, dim=1)  
         b = self.b_h[self.y_target, self.y_output]
-        # print_remi("b",b)
         dist_centroids_center = torch.norm(self.correct_centroids.positions,
                                            p=2,
                                            dim=0)
-        # print_remi("dist_centroids_center",dist_centroids_center)
         dist = torch.full_like(b,
                                fill_value=float('nan'),
                                device=self.device)
@@ -359,10 +350,8 @@ class VCBAReweighter(object):
             mask = (norm_w != 0)*misaligned
         else:
             mask = norm_w != 0
-        # print_remi("mask",mask)
         dist[mask] = torch.abs(torch.einsum(
             'ij,ij->i', w, self.output_bottleneck)+b)[mask]/norm_w[mask]
-        # print_remi("dist",dist)
         rel_dist = torch.full_like(
             dist, fill_value=float('nan'), device=self.device)
         rel_dist[mask] = dist[mask] * self.nb_classes / \
@@ -384,7 +373,6 @@ class VCBAReweighter(object):
                 out_bot = self.output_bottleneck[i, :]
                 w = self.w_h[y_t, y_o]
                 norm_w = torch.norm(w, p=2)
-                # print(norm_w)
                 if norm_w > 0:
                     b = self.b_h[y_t, y_o]
                     dist = torch.abs(torch.matmul(w, out_bot) + b) / norm_w

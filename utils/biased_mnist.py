@@ -20,7 +20,6 @@ from torchvision.datasets import MNIST
 import torch.nn.functional as F
 from torch.utils import data
 
-### MOdif test
 # =================================== CODE ===================================
 
 
